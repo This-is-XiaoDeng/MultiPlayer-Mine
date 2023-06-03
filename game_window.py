@@ -8,7 +8,7 @@ import easygui
 logging.basicConfig(
     format="[%(asctime)s][%(name)s / %(levelname)s]: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    level = logging.DEBUG
+    level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -35,20 +35,21 @@ class Window:
         self.can_start = False
         self.messages = []
         self.font = "sarasa-fixed-cl-regular.ttf"
-        self.bg_color = (45,64,89)#(50,62,79)#(30,31,41)
+        self.bg_color = (45, 64, 89)  # (50,62,79)#(30,31,41)
         self.get_message_thread = threading.Thread(target=self.get_message)
         # 初始化素材
         self.debug_display_font = pygame.font.Font(self.font, 10)
         self.ready_title = pygame.font.Font(self.font, 50).render(
-            "GETTING READY", True, (255,255,255))
+            "GETTING READY", True, (255, 255, 255))
         self.player_list_display_font = pygame.font.Font(self.font, 15)
         self.chat_display_font = pygame.font.Font(self.font, 12)
         # 初始化窗口
         self.window = pygame.display.set_mode((600, 400))
-        pygame.display.set_caption("Multiplayer Mine v1.0.0-dev (By This-is-XiaoDeng)")
+        pygame.display.set_caption(
+            "Multiplayer Mine v1.0.0-dev (By This-is-XiaoDeng)")
         self.get_message_thread.start()
         threading.Thread(target=self.start_game).start()
-    
+
     def start_game(self):
         logger.info("游戏开始事件监控线程已启动！")
         while True:
@@ -59,14 +60,14 @@ class Window:
                 self.selected_item = None
                 self.screen = "pvp"
                 logger.info("游戏开始")
-    
+
     def get_message(self):
         while True:
             msg = self.client.get_recv(-1)
-            logger.info(f"[CHAT] {msg['data']['user_name']}: {msg['data']['msg']}")
+            logger.info(
+                f"[CHAT] {msg['data']['user_name']}: {msg['data']['msg']}")
             self.messages.append(msg['data'])
-            
-    
+
     def update_palyer_list(self):
         while self.screen == "ready":
             self.player_list = self.client.get_recv(-2)["data"]["player_list"]
@@ -76,23 +77,23 @@ class Window:
                     if not player["readied"]:
                         _can_start = False
                 self.can_start = _can_start
-        
+
     def update_ping(self, ping):
         logger.info(f"网络延迟：{ping}ms")
         self.ping = ping
-    
+
     def display_debug_info(self):
         """self.window.blit(
             self.debug_display_font.render(f"", True, (255, 255, 255)),
             (0, 0))"""
-        surface =  self.debug_display_font.render(
+        surface = self.debug_display_font.render(
             (
                 "Multiplayer Mine v1.0.0-dev |"
-                 f" FPS: {self.fps} | PING: {self.ping}ms |"
-                 f" {self.config['addr'][0]}:{self.config['addr'][1]}"
-            ), True, (240,240,240))
+                f" FPS: {self.fps} | PING: {self.ping}ms |"
+                f" {self.config['addr'][0]}:{self.config['addr'][1]}"
+            ), True, (240, 240, 240))
         surface.set_alpha(85)
-        self.window.blit(surface, ((600 - surface.get_size()[0])/2, 385))
+        self.window.blit(surface, ((600 - surface.get_size()[0]) / 2, 385))
         # 计算fps
         if time.time() - self.timer_fps >= 1:
             self.timer_fps = time.time()
@@ -100,12 +101,13 @@ class Window:
             self._fps = 0
         else:
             self._fps += 1
-        
+
     def display_ready_screen(self):
-        self.window.blit(self.ready_title, ((600-self.ready_title.get_size()[0])/2, 30))
+        self.window.blit(
+            self.ready_title, ((600 - self.ready_title.get_size()[0]) / 2, 30))
         # 玩家列表
         player_list_surface = pygame.surface.Surface((500, 150))
-        player_list_surface.fill((30,31,41))
+        player_list_surface.fill((30, 31, 41))
         length = 0
         for player in self.player_list:
             length += 1
@@ -119,21 +121,23 @@ class Window:
         # 准备按钮
         ready_btn = pygame.surface.Surface((375, 60))
         if self.can_start:
-            ready_btn.fill((0,128,143))
-            text = self.player_list_display_font.render("START", True, (255, 255, 255))
+            ready_btn.fill((0, 128, 143))
+            text = self.player_list_display_font.render(
+                "START", True, (255, 255, 255))
         else:
-            ready_btn.fill((30,31,41))
+            ready_btn.fill((30, 31, 41))
             text = self.player_list_display_font.render(
                 "READIED" if self.is_readied else "READY", True, (255, 255, 255))
         size = text.get_size()
-        ready_btn.blit(text, ((375-size[0])/2,(60-size[1])/2))
+        ready_btn.blit(text, ((375 - size[0]) / 2, (60 - size[1]) / 2))
         self.window.blit(ready_btn, (50, 270))
         # 查看设置按钮
         setting_btn = pygame.surface.Surface((100, 60))
-        setting_btn.fill((30,31,41))
-        text =self.player_list_display_font.render("SETTING", True, (255, 255, 255))
+        setting_btn.fill((30, 31, 41))
+        text = self.player_list_display_font.render(
+            "SETTING", True, (255, 255, 255))
         size = text.get_size()
-        setting_btn.blit(text, ((100-size[0])/2,(60-size[1])/2))
+        setting_btn.blit(text, ((100 - size[0]) / 2, (60 - size[1]) / 2))
         self.window.blit(setting_btn, (450, 270))
         # 处理事件
         if self.mouse_clicked and 50 <= self.mouse_pos[0] <= 425 and 270 <= self.mouse_pos[1] <= 330:
@@ -142,8 +146,8 @@ class Window:
                 self.client.send("startGame")
             else:
                 self.is_readied = not self.is_readied
-                self.client.send("changeReadyStatus", readied = self.is_readied)
-                
+                self.client.send("changeReadyStatus", readied=self.is_readied)
+
         elif self.mouse_clicked and 450 <= self.mouse_pos[0] <= 550 and 270 <= self.mouse_pos[1] <= 330:
             logger.info("点击按钮：修改/查看设置")
             if self.is_host:
@@ -154,20 +158,25 @@ class Window:
         length = 0
         for msg in self.messages[-3:][::-1]:
             length += 1
-            text = self.chat_display_font.render(f"{msg['user_name']}: {msg['msg']}", True, (255, 255, 255))
+            text = self.chat_display_font.render(
+                f"{msg['user_name']}: {msg['msg']}", True, (255, 255, 255))
             self.window.blit(text, (0, 385 - length * 15))
-        text = self.chat_display_font.render(f"PRESS [T] TO INPUT", True, (166, 166, 166))
+        text = self.chat_display_font.render(
+            f"PRESS [T] TO INPUT", True, (166, 166, 166))
         self.window.blit(text, (0, 385))
-    
+
     def send_chat_message(self):
         logger.info("正在获取发送信息 ...")
         msg = easygui.enterbox("请输入消息内容", "发送消息")
         logger.debug(msg)
         self.client.send("sendMessage", msg=msg)
-    
+
     def display_pvp_ui(self):
-        map_surface, map_start_pos, map_size = draw.draw(self.map, self.selected_item)
-        map_pos = ((300 - map_surface.get_size()[0]) / 2, (400 - map_surface.get_size()[1]) / 2)
+        map_surface, map_start_pos, map_size = draw.draw(
+            self.map, self.selected_item)
+        map_pos = (
+            (300 - map_surface.get_size()[0]) / 2,
+            (400 - map_surface.get_size()[1]) / 2)
         self.window.blit(map_surface, map_pos)
         map_start_pos = list(map_start_pos)
         map_start_pos[0] += map_pos[0]
@@ -175,13 +184,15 @@ class Window:
         if map_start_pos[0] <= self.mouse_pos[0] <= map_start_pos[0] + map_size[0]\
                 and map_start_pos[1] <= self.mouse_pos[1] <= map_start_pos[1] + map_size[1]:
             self.selected_item = (int((self.mouse_pos[0] - map_start_pos[0] - 3.75) / 22.5),
-                             int((self.mouse_pos[1] - map_start_pos[1] - 3.75) / 22.5))
+                                  int((self.mouse_pos[1] - map_start_pos[1] - 3.75) / 22.5))
             # logger.debug(f"选中：{self.selected_item}")
-    
+
     def loop(self):
-        self.update_player_list_thread = threading.Thread(target=self.update_palyer_list)
+        self.update_player_list_thread = threading.Thread(
+            target=self.update_palyer_list)
         self.update_player_list_thread.start()
-        logger.info(f"客户端加载完成！（用时{round(time.time() - self.timer_launch, 3)}s）")
+        logger.info(
+            f"客户端加载完成！（用时{round(time.time() - self.timer_launch, 3)}s）")
         while self.is_running:
             # 处理事件
             for event in pygame.event.get():
@@ -195,7 +206,7 @@ class Window:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_t:
                         self.send_chat_message()
-                        
+
             # 处理screen
             if self.screen == "ready":
                 self.display_ready_screen()
@@ -207,19 +218,21 @@ class Window:
             pygame.display.update()
             self.window.fill(self.bg_color)
             if self.client.client_config["max_fps"] >= 0:
-                pygame.time.delay(int(1/self.client.client_config["max_fps"]*1000))
+                pygame.time.delay(
+                    int(1 / self.client.client_config["max_fps"] * 1000))
             self.mouse_clicked = False
             # 检查线程
             if not self.client.get_ping_thread.is_alive():
-                self.client.get_ping_thread = threading.Thread(target=self.client.get_ping)
+                self.client.get_ping_thread = threading.Thread(
+                    target=self.client.get_ping)
                 self.client.get_ping_thread.start()
-            
+
 
 if __name__ == "__main__":
     logger.warning("请使用 main.py 启动程序")
     # 从 main.py 启动主类
-    import main, os
+    import main
+    import os
     app = main.Main()
     logger.info("程序执行完毕，正在退出 ...")
     os._exit(0)
-        

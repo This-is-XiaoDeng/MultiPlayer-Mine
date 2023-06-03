@@ -10,7 +10,7 @@ import time
 logging.basicConfig(
     format="[%(asctime)s][%(name)s / %(levelname)s]: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    level = logging.DEBUG
+    level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -27,25 +27,25 @@ class Client:
         self.receive = []
         # 在此处初始化PyGame
         self.run()
-    
+
     def run(self):
         self.socket.connect(self.config["addr"])
         # self.client_thread = threading.Thread(target=self.handle)
         # self.client_thread.start()
         self.receive_thread = threading.Thread(target=self.get_receive)
         self.receive_thread.start()
-    
+
     def get_ping(self):
         while True:
             logger.info("正在更新网络延时 ...")
             try:
-                send_time = self.get_recv(self.send("getTime"))["data"]["_time"]
+                send_time = self.get_recv(
+                    self.send("getTime"))["data"]["_time"]
                 self.window.update_ping(int((time.time() - send_time) * 1000))
                 time.sleep(1)
             except BaseException as e:
                 logger.error(e)
-        
-    
+
     def get_receive(self):
         logger.info("接收线程启动")
         while True:
@@ -55,7 +55,7 @@ class Client:
                 logger.debug(base64.b64decode(data))
                 self.receive.append(json.loads(base64.b64decode(data)))
                 logger.info(f"接收 {self.receive[-1]}")
-    
+
     def get_recv(self, echo):
         while True:
             length = 0
@@ -63,11 +63,11 @@ class Client:
                 if data["echo"] == echo:
                     return self.receive.pop(length)
                 length += 1
-    
+
     def handle(self):
         # 用于与服务器通讯，不知道取什么名，先这样吧
         logger.info("已连接到服务器")
-        self.login()        
+        self.login()
         logger.info("正在初始化主窗口 ...")
         self.window = game_window.Window(self)
         # 延迟获取线程
@@ -76,16 +76,14 @@ class Client:
         # 进入循环
         self.window.loop()
         logger.warning("主窗口已退出")
-        
-        
-    
+
     def login(self):
         logger.info("正在登录 ...")
         login_res = self.get_recv(
             self.send(
                 "clientLogin",
                 username=self.config["username"],
-                password = self.config["password"],
+                password=self.config["password"],
                 client_id=self.client_id))
         if login_res["type"] == "logined":
             logger.info("登录成功")
@@ -93,7 +91,7 @@ class Client:
             return True
         else:
             return False
-        
+
     def send(self, _type, **message):
         echo = random.randint(0, 99999)
         data = json.dumps({
@@ -102,13 +100,13 @@ class Client:
         self.socket.send(base64.b64encode(data.encode("utf-8")) + b"|")
         # self.echo += 1
         return echo
-        
-        
+
+
 if __name__ == "__main__":
     logger.warning("请使用 main.py 启动程序")
     # 从 main.py 启动主类
-    import main, os
+    import main
+    import os
     app = main.Main()
     logger.info("程序执行完毕，正在退出 ...")
     os._exit(0)
-    
