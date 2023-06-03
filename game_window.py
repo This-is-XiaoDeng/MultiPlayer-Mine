@@ -56,6 +56,7 @@ class Window:
             if recv_data["type"] == "gameStarted":
                 self.map = recv_data["data"]["game_map"]
                 # TODO 启动地图更新和排名更新线程
+                self.selected_item = None
                 self.screen = "pvp"
                 logger.info("游戏开始")
     
@@ -165,9 +166,20 @@ class Window:
         self.client.send("sendMessage", msg=msg)
     
     def display_pvp_ui(self):
-        map_surface = draw.draw(self.map)
-        self.window.blit(map_surface, ((300 - map_surface.get_size()[0]) / 2,
-                                (400 - map_surface.get_size()[1]) / 2))
+        map_surface, map_start_pos, map_size = draw.draw(self.map, self.selected_item)
+        map_pos = ((300 - map_surface.get_size()[0]) / 2, (400 - map_surface.get_size()[1]) / 2)
+        self.window.blit(map_surface, map_pos)
+        map_start_pos = list(map_start_pos)
+        map_start_pos[0] += map_pos[0]
+        map_start_pos[1] += map_pos[1]
+        if map_start_pos[0] <= self.mouse_pos[0] <= map_start_pos[0] + map_size[0]\
+                and map_start_pos[1] <= self.mouse_pos[1] <= map_start_pos[1] + map_size[1]:
+            self.selected_item = (int((self.mouse_pos[0] - map_start_pos[0] - 3.75) / 22.5),
+                             int((self.mouse_pos[1] - map_start_pos[1] - 3.75) / 22.5))
+            # logger.info(f"选中：{selected_item}")
+
+        
+
         
     def loop(self):
         self.update_player_list_thread = threading.Thread(target=self.update_palyer_list)
@@ -185,9 +197,6 @@ class Window:
                     self.mouse_clicked = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_t:
-                        #threading.Thread(
-                            #target=self.send_chat_message).start()
-                            #self.send_chat_msg_thread.start()
                         self.send_chat_message()
                         
             # 处理screen
