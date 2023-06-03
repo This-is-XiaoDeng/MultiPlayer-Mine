@@ -176,11 +176,8 @@ class Window:
                 and map_start_pos[1] <= self.mouse_pos[1] <= map_start_pos[1] + map_size[1]:
             self.selected_item = (int((self.mouse_pos[0] - map_start_pos[0] - 3.75) / 22.5),
                              int((self.mouse_pos[1] - map_start_pos[1] - 3.75) / 22.5))
-            # logger.info(f"选中：{selected_item}")
-
-        
-
-        
+            # logger.debug(f"选中：{self.selected_item}")
+    
     def loop(self):
         self.update_player_list_thread = threading.Thread(target=self.update_palyer_list)
         self.update_player_list_thread.start()
@@ -188,7 +185,7 @@ class Window:
         while self.is_running:
             # 处理事件
             for event in pygame.event.get():
-                logger.debug(f"[EVENT] {event}")
+                # logger.debug(f"[EVENT] {event}")
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 elif event.type == pygame.MOUSEMOTION:
@@ -209,7 +206,8 @@ class Window:
             # 更新屏幕
             pygame.display.update()
             self.window.fill(self.bg_color)
-            pygame.time.delay(int(1/self.client.client_config["max_fps"]*1000))
+            if self.client.client_config["max_fps"] >= 0:
+                pygame.time.delay(int(1/self.client.client_config["max_fps"]*1000))
             self.mouse_clicked = False
             # 检查线程
             if not self.client.get_ping_thread.is_alive():
